@@ -201,7 +201,7 @@ Full entries (why, alternative) are in `docs/decisions.md`:
 
 ### Open questions
 
-1. **`temperature 0` on the Claude request** (see `docs/open-questions.md` #1). The plan asks for it, but Claude Sonnet 5.5 rejects non-default sampling and disabled thinking. The build sends no temperature and `thinking: between_tools`. Zeddrix to confirm.
+1. **`temperature 0` on the Claude request** (see `docs/open-questions.md` #1). The plan asks for it, but Claude Sonnet 5.5 rejects non-default sampling and disabled thinking. The build sends no temperature and `thinking: between_tools`. **Resolved: Zeddrix approved keeping it as built.**
 
 ### Not done / limits (honest list)
 
