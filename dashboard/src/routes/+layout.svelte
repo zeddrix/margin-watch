@@ -8,6 +8,8 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<title>Margin Watch</title>
+	<meta name="description" content="Morning margin check for HVAC jobs (sample data)." />
 </svelte:head>
 
 {@render children()}

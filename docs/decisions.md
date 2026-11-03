@@ -49,3 +49,13 @@
 33. **"No key" means `ANTHROPIC_API_KEY` is empty** (the plan's rule); the SDK's other credential sources (CLI profiles) aren't consulted, so nothing is ever called by accident. The real client uses a 20 s timeout and 1 retry.
 34. **`agent/.env` is loaded by the CLI only, never overriding real env vars**; `MARGIN_WATCH_ENV_FILE` points elsewhere and an empty value disables it (tests do this, so a developer's `.env` can't change test results).
 35. **The demo's phrasing varies per job by SHA-256 of the job id** (Python's `hash()` is salted per process), and it caps individual job sentences at 3 so the summary stays within 3–6 sentences.
+
+## Dashboard (Phase 6)
+
+36. **Dashboard E2E tests intercept `runs/*.json` and serve the committed fixtures** (Playwright `page.route`) instead of copying them into `static/runs/`. · The build stays the real build; tests can't depend on whatever was last synced; empty and malformed states need no special build. · Alternative: a test-only static dir.
+37. **The dashboard is an SPA (`ssr = false`, adapter-static with an `index.html` fallback)** that fetches the run files in the browser. · New runs appear after `sync-runs` without rebuilding. · Alternative: prerender each run at build time.
+38. **Risk order is recomputed in the browser with the agent's rule** (status, $ at risk desc, id) so "Status" sorting always restores it, whatever order the rows are in.
+39. **Dashboard deltas (since last run) are computed in TypeScript from the run files' numbers** (counts, cents, points). This is display arithmetic in code, not AI maths; the model never sees or writes them.
+40. **"Call today" list in the summary card** (added during the visual review): LOSS and AT_RISK jobs with PM and $ at risk. · Directly answers the brief's 5-second question; the summary prose stays for context.
+41. **SvelteKit 3.1 / Svelte 5 / Vite 8 / Tailwind 4** from `npx sv create` + `sv add` (current stable on 3 Nov 2026). Components use scoped CSS on CSS-variable tokens; Tailwind supplies the reset and `sr-only`. The system font stack (Inter if installed) avoids a network font.
+42. **Playwright runs on port 4174** so it never collides with `make demo` on 4173.
