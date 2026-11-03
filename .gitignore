@@ -14,3 +14,6 @@ dashboard/playwright-report/
 .env
 agent/.env
 .claude/allow-test-edits
+
+# Output of the live-run browser tests
+.e2e-live/

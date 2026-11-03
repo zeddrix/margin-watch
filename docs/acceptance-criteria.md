@@ -240,3 +240,49 @@ The dashboard is a static SvelteKit site that reads only `runs/index.json` and `
 ## After hand-over: summary readability
 
 **AC-91 Summary reads as short rows.** `summaryItems(text, jobs)` turns the summary into reading rows without changing a word: a summary written as several paragraphs (the template) keeps one row per paragraph; a summary written as a single paragraph (the demo AI) gets one row per sentence. Joining the rows gives back the original text. Each row's tone is the status of the first job linked in it, or none. For the 4 Nov fixture that is 6 rows with tones LOSS, AT_RISK, AT_RISK, WATCH, NEEDS_REVIEW, none; for the 3 Nov fixture 4 rows with tones none, LOSS, AT_RISK, WATCH. Every flagged job is still linked exactly once, and decimals such as "17.5%" never split a sentence. On the page, the 4 Nov summary shows 6 rows and the 1038 link still opens its drawer.
+
+## Live run: "Run this morning's check" (dry run)
+
+A button on the dashboard really runs the morning check on the sample data through a small local helper (`margin-watch serve`, listening on 127.0.0.1 only), and shows each step in plain English as it happens. Nothing is sent. The helper only ever uses the offline demo AI. Steps are held on screen for a moment so people can follow them; the screen says so.
+
+### The live run (Python)
+
+**AC-92 Live run steps.** Running live for 4 Nov with the demo AI and no pacing yields: a `start` event (`dry_run` true, `ai` "demo", `as_of` "2026-11-04", and 7 steps in order: read "Reading the jobs", maths "Doing the maths", review "Catching bad data", summary "AI writes the summary, and every number is checked", excel "Saving the Excel report", email "Drafting the morning email", dashboard "Updating the dashboard"); then for each step a `running` event followed by a `done` event; then a `done` run event with `sent` false. The step details are exactly:
+- read: `Read 14 jobs from jobs-2026-11-04.json (sample data shaped like a Simpro export).`
+- maths: `Worked out the quoted and forecast margin for 12 jobs: 1 heading for a loss, 2 at risk, 2 on watch and 7 on track.`
+- review: `2 jobs have missing or wrong data. They're flagged for review instead of guessed.`
+- excel: `Saved margin-report-2026-11-04.xlsx with three sheets: Summary, Jobs and Cost centres.`
+- email: `Drafted the email to ops@example.com: “Margin watch, Wed 4 Nov: 1 loss, 2 at risk, 2 to review”. Dry run, so it was saved, not sent.`
+- dashboard: `Saved the run so the dashboard can show it.`
+
+The maths step carries the counts per status and the dollars at risk ("$66,300"); the review step lists 1039 and 1044 with their problems. The run writes the same five files as `margin-watch run`.
+
+**AC-93 Every number is checked, live.** With the demo AI the summary step is `done`, `verified` is true, the writer is "Demo AI", every number check is ok (they include "-2.5%", "17.5%", "$12,000" and "$66,300"), and the detail is `Demo AI wrote the summary. All N numbers in it match the calculations, so it was approved.` where N is the number of checks. With `demo-bad` the summary step state is `warning`, `rejected` is ["$13,750"], the "$13,750" check is not ok while every other check is ok, the detail is `Demo AI wrote a summary, but $13,750 isn't in the calculations. The answer was rejected and the safe template summary was used instead.`, and the saved run's summary source is "template".
+
+**AC-94 Paced for people.** With a pace of 0.9 s the run waits 0.9 s after each of the 7 steps (7 waits); with a pace of 0 it never waits.
+
+**AC-95 Problems are shown, not hidden.** If the sample file is invalid, the run yields an `error` event for step "read" whose message starts with `Invalid input file:`, and no `done` event.
+
+### The local helper (Python)
+
+**AC-96 Helper API.** `GET /api/health` returns `{"live": true, "dry_run": true, "sample_dates": ["2026-11-03", "2026-11-04"]}`. `POST /api/run` with `{"ai": "demo"}` returns 200 `application/x-ndjson`, one AC-92 event per line, for the latest sample date. `{"ai": "demo-bad", "as_of": "2026-11-03"}` runs 3 Nov. `ai` "claude", "local" or "off", an unknown `as_of`, or a body that isn't JSON returns 400 with an `error` message. A run requested while another is going returns 409. `POST /api/reset` deletes only the generated files in the output folder (run files, Excel reports, email drafts), keeps anything else, and returns 204, so a demo can start from "No runs yet".
+
+**AC-97 Helper files, safely.** `/` serves the dashboard's `index.html`; `/runs/index.json` and `/runs/2026-11-04.json` come from the output folder; `/files/margin-report-2026-11-04.xlsx` (Excel content type) and `/files/email/preview-2026-11-04.html` are served from the output folder. Anything else under `/files/`, a missing file, and path tricks such as `/../agent/.env`, `/runs/../../agent/.env` or `/files/../agent/.env` return 404.
+
+**AC-98 `margin-watch serve`.** `margin-watch serve --help` lists `--port` (default 4173), `--output-dir` and `--pace` (default 0.9 seconds). The helper listens on 127.0.0.1 only.
+
+### The dashboard
+
+The browser tests for AC-100..AC-104 drive the real helper (`margin-watch serve`, no pacing, output folder reset before each test), not recorded events.
+
+**AC-99 Reading the live stream.** `readEvents` turns streamed chunks into events even when a line is split across chunks, skips blank lines, and raises an error naming the line when a line isn't JSON.
+
+**AC-100 The Run button.** When the helper answers `/api/health`, the top bar shows a "Run this morning's check" button and a "Dry run · nothing is sent" label. On a static copy of the dashboard (no helper) there is no button.
+
+**AC-101 Watching the run.** Clicking the button sends `{"ai": "demo"}` and opens a dialog titled "Morning check · dry run" listing the 7 steps. As events arrive each step shows its detail and a tick, the maths step shows the status tally (1 loss, 2 at risk, 2 watch, 7 on track), the review step names 1039 and 1044, the summary step shows every checked number as verified, and the Excel and email steps offer "Open Excel report" (`/files/margin-report-2026-11-04.xlsx`) and "Preview email" (`/files/email/preview-2026-11-04.html`). At the end it says `Done. Nothing was sent.` "See the results" closes the dialog and reloads the dashboard.
+
+**AC-102 The made-up number, live.** After a run, "Try it with a made-up AI number" sends `{"ai": "demo-bad"}`. The summary step then shows a warning, marks `$13,750` as not in the calculations, and says the answer was rejected and the safe template was used.
+
+**AC-103 Real end to end.** Against the real helper with an empty output folder and no pacing, the page shows "No runs yet" and the Run button; clicking it completes all 7 steps; "See the results" shows the 4 Nov dashboard (3 jobs needing action, $66,300); the "Open Excel report" link downloads an .xlsx file.
+
+**AC-104 Accessible live panel.** With the live panel open, axe finds no serious or critical violations in light or dark; focus is inside the dialog; Esc closes it and returns focus to the Run button.

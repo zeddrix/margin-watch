@@ -149,3 +149,30 @@ def run(
     typer.echo("Wrote:")
     for path in outputs.all():
         typer.echo(f"  {path}")
+
+
+@app.command()
+def serve(
+    port: Annotated[int, typer.Option(help="Port on 127.0.0.1.")] = 4173,
+    output_dir: Annotated[
+        Path | None, typer.Option("--output-dir", help="Where runs are written (default: output/).")
+    ] = None,
+    pace: Annotated[
+        float, typer.Option(help="Seconds each step stays on screen, so people can follow it.")
+    ] = 0.9,
+    dashboard_dir: Annotated[
+        Path | None,
+        typer.Option("--dashboard-dir", help="Built dashboard (default: dashboard/build)."),
+    ] = None,
+) -> None:
+    """Serve the dashboard with a live "Run this morning's check" button (127.0.0.1 only)."""
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    class Placeholder(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:
+            self.send_error(501)
+
+        def do_POST(self) -> None:
+            self.send_error(501)
+
+    HTTPServer(("127.0.0.1", port), Placeholder).serve_forever()
