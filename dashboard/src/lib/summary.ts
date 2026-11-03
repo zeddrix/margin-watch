@@ -77,3 +77,13 @@ export function summaryParagraphs(text: string, jobs: Job[]): Segment[][] {
 		return segments;
 	});
 }
+
+export interface SummaryItem {
+	segments: Segment[];
+	tone: Job['status'] | null;
+}
+
+/** Reading rows: one per paragraph, or one per sentence when the text is a single paragraph. */
+export function summaryItems(text: string, jobs: Job[]): SummaryItem[] {
+	throw new Error(`not implemented: ${text.length} ${jobs.length}`);
+}

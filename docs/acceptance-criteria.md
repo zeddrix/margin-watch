@@ -236,3 +236,7 @@ The dashboard is a static SvelteKit site that reads only `runs/index.json` and `
 **AC-89 Phone width (390px).** The table is hidden and stacked cards show each job's status, name, dollars at risk and forecast margin in risk order. Tapping the 1042 card opens its drawer, and Esc closes it.
 
 **AC-90 Accessibility.** axe finds no serious or critical violations on the page or in the open drawer, in light and dark colour schemes.
+
+## After hand-over: summary readability
+
+**AC-91 Summary reads as short rows.** `summaryItems(text, jobs)` turns the summary into reading rows without changing a word: a summary written as several paragraphs (the template) keeps one row per paragraph; a summary written as a single paragraph (the demo AI) gets one row per sentence. Joining the rows gives back the original text. Each row's tone is the status of the first job linked in it, or none. For the 4 Nov fixture that is 6 rows with tones LOSS, AT_RISK, AT_RISK, WATCH, NEEDS_REVIEW, none; for the 3 Nov fixture 4 rows with tones none, LOSS, AT_RISK, WATCH. Every flagged job is still linked exactly once, and decimals such as "17.5%" never split a sentence. On the page, the 4 Nov summary shows 6 rows and the 1038 link still opens its drawer.
