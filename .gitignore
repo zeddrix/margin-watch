@@ -1,0 +1,16 @@
+output/*
+!output/.gitkeep
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+node_modules/
+dashboard/build/
+dashboard/.svelte-kit/
+dashboard/test-results/
+dashboard/playwright-report/
+.env
+agent/.env
+.claude/allow-test-edits
