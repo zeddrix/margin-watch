@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "runs": [
+    {
+      "as_of": "2026-11-04",
+      "file": "2026-11-04.json",
+      "generated_at": "2026-11-04T06:30:00+11:00",
+      "counts": {
+        "LOSS": 1,
+        "AT_RISK": 2,
+        "WATCH": 2,
+        "NEEDS_REVIEW": 2,
+        "ON_TRACK": 7
+      },
+      "jobs_needing_action": 3,
+      "total_dollars_at_risk": 66300.0,
+      "summary_source": "ai_verified"
+    },
+    {
+      "as_of": "2026-11-03",
+      "file": "2026-11-03.json",
+      "generated_at": "2026-11-03T06:30:00+11:00",
+      "counts": {
+        "LOSS": 1,
+        "AT_RISK": 1,
+        "WATCH": 4,
+        "NEEDS_REVIEW": 2,
+        "ON_TRACK": 6
+      },
+      "jobs_needing_action": 2,
+      "total_dollars_at_risk": 58800.0,
+      "summary_source": "template"
+    }
+  ]
+}
