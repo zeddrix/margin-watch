@@ -26,7 +26,7 @@ Honesty rules for the whole recording: say **"made-up data"** and **"shaped like
 
 **[SCREEN]** Point at **Run this morning's check** and the "Dry run · nothing is sent" label, then click it. The panel opens and the steps tick off one by one. Don't talk over the first two seconds.
 
-**SAY:** "Every morning this runs on its own. Here I'll press the button so you can watch it. It's a dry run, so nothing gets sent."
+**SAY:** "It's built to run on its own every morning at 6:30. Here I'll press the button so you can watch it. It's a dry run, so nothing gets sent."
 
 **[SCREEN]** As each step ticks: point at the tally chips, then the two "bad data" jobs, then the green number chips.
 
