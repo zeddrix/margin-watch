@@ -1,0 +1,461 @@
+{
+  "snapshot_date": "2026-11-03",
+  "source": "Sample data shaped like a Simpro job costing export. All jobs, clients and people are fictional.",
+  "jobs": [
+    {
+      "id": "1031",
+      "name": "Boiler and hydronic heating upgrade, aged-care home",
+      "client": "Banksia Gardens Aged Care",
+      "site": "Banksia Gardens, Frankston",
+      "stage": "Complete",
+      "project_manager": "Tom Reilly",
+      "quoted_sell_ex_gst": "110000.00",
+      "percent_complete": 100,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "30000.00",
+          "actual_cost_to_date": "28800.00",
+          "estimated_hours": "300",
+          "actual_hours": "288",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "45000.00",
+          "actual_cost_to_date": "44500.00"
+        },
+        {
+          "name": "Subcontractors",
+          "estimated_cost": "10000.00",
+          "actual_cost_to_date": "10000.00"
+        },
+        {
+          "name": "Equipment hire",
+          "estimated_cost": "3000.00",
+          "actual_cost_to_date": "2500.00"
+        }
+      ]
+    },
+    {
+      "id": "1032",
+      "name": "Split system installs, childcare centre",
+      "client": "Little Wattle Early Learning",
+      "site": "Little Wattle, Brunswick",
+      "stage": "Scheduled",
+      "project_manager": "Mei Lin Tan",
+      "quoted_sell_ex_gst": "25000.00",
+      "percent_complete": 0,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "8000.00",
+          "actual_cost_to_date": "0.00",
+          "estimated_hours": "80",
+          "actual_hours": "0",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "12000.00",
+          "actual_cost_to_date": "0.00"
+        }
+      ]
+    },
+    {
+      "id": "1033",
+      "name": "Rooftop package unit replacement, school",
+      "client": "Kingsbury Park College",
+      "site": "Kingsbury Park College, gym block",
+      "stage": "In progress",
+      "project_manager": "Tom Reilly",
+      "quoted_sell_ex_gst": "160000.00",
+      "percent_complete": 45,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "40000.00",
+          "actual_cost_to_date": "20520.00",
+          "estimated_hours": "400",
+          "actual_hours": "205.2",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "60000.00",
+          "actual_cost_to_date": "28080.00"
+        },
+        {
+          "name": "Subcontractors",
+          "estimated_cost": "15000.00",
+          "actual_cost_to_date": "6750.00"
+        },
+        {
+          "name": "Equipment hire",
+          "estimated_cost": "5000.00",
+          "actual_cost_to_date": "2250.00"
+        }
+      ]
+    },
+    {
+      "id": "1034",
+      "name": "Kitchen exhaust and make-up air, restaurant",
+      "client": "Basilico Restaurant Group",
+      "site": "Basilico, Carlton",
+      "stage": "In progress",
+      "project_manager": "Sam Okafor",
+      "quoted_sell_ex_gst": "40000.00",
+      "percent_complete": 65,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "12000.00",
+          "actual_cost_to_date": "7800.00",
+          "estimated_hours": "120",
+          "actual_hours": "78",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "15000.00",
+          "actual_cost_to_date": "9750.00"
+        },
+        {
+          "name": "Subcontractors",
+          "estimated_cost": "4000.00",
+          "actual_cost_to_date": "2600.00"
+        },
+        {
+          "name": "Equipment hire",
+          "estimated_cost": "1000.00",
+          "actual_cost_to_date": "650.00"
+        }
+      ]
+    },
+    {
+      "id": "1035",
+      "name": "Ductwork upgrade, medical centre",
+      "client": "Northside Medical Group",
+      "site": "Northside Medical Centre, Coburg",
+      "stage": "In progress",
+      "project_manager": "Sam Okafor",
+      "quoted_sell_ex_gst": "125000.00",
+      "percent_complete": 75,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "40000.00",
+          "actual_cost_to_date": "37500.00",
+          "estimated_hours": "400",
+          "actual_hours": "375",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "40000.00",
+          "actual_cost_to_date": "32250.00"
+        },
+        {
+          "name": "Subcontractors",
+          "estimated_cost": "16000.00",
+          "actual_cost_to_date": "12000.00"
+        },
+        {
+          "name": "Equipment hire",
+          "estimated_cost": "4000.00",
+          "actual_cost_to_date": "3750.00"
+        }
+      ]
+    },
+    {
+      "id": "1036",
+      "name": "Server room precision cooling",
+      "client": "Bluegum Data",
+      "site": "Bluegum Data, Port Melbourne",
+      "stage": "In progress",
+      "project_manager": "Priya Nair",
+      "quoted_sell_ex_gst": "90000.00",
+      "percent_complete": 40,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "20000.00",
+          "actual_cost_to_date": "8000.00",
+          "estimated_hours": "200",
+          "actual_hours": "80",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "45000.00",
+          "actual_cost_to_date": "19800.00"
+        },
+        {
+          "name": "Subcontractors",
+          "estimated_cost": "5000.00",
+          "actual_cost_to_date": "2000.00"
+        },
+        {
+          "name": "Equipment hire",
+          "estimated_cost": "2000.00",
+          "actual_cost_to_date": "800.00"
+        }
+      ]
+    },
+    {
+      "id": "1037",
+      "name": "Office tower AHU refurbishment",
+      "client": "Spencer Quarter Holdings",
+      "site": "Spencer Quarter tower, West Melbourne",
+      "stage": "In progress",
+      "project_manager": "Priya Nair",
+      "quoted_sell_ex_gst": "200000.00",
+      "percent_complete": 55,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "60000.00",
+          "actual_cost_to_date": "35750.00",
+          "estimated_hours": "600",
+          "actual_hours": "357.5",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "80000.00",
+          "actual_cost_to_date": "44000.00"
+        },
+        {
+          "name": "Subcontractors",
+          "estimated_cost": "15000.00",
+          "actual_cost_to_date": "8250.00"
+        },
+        {
+          "name": "Equipment hire",
+          "estimated_cost": "5000.00",
+          "actual_cost_to_date": "2750.00"
+        }
+      ]
+    },
+    {
+      "id": "1038",
+      "name": "Level 4 fit-out: VRF install",
+      "client": "Harbourline Property Group",
+      "site": "Harbourline House, Level 4, Southbank",
+      "stage": "In progress",
+      "project_manager": "Priya Nair",
+      "quoted_sell_ex_gst": "250000.00",
+      "percent_complete": 40,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "72000.00",
+          "actual_cost_to_date": "33600.00",
+          "estimated_hours": "720",
+          "actual_hours": "336",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "100000.00",
+          "actual_cost_to_date": "40000.00"
+        },
+        {
+          "name": "Subcontractors",
+          "estimated_cost": "22000.00",
+          "actual_cost_to_date": "8800.00"
+        },
+        {
+          "name": "Equipment hire",
+          "estimated_cost": "6000.00",
+          "actual_cost_to_date": "2400.00"
+        }
+      ]
+    },
+    {
+      "id": "1039",
+      "name": "Q4 preventive maintenance contract",
+      "client": "Eastbrook Shopping Centre",
+      "site": "Eastbrook Shopping Centre, Box Hill",
+      "stage": "In progress",
+      "project_manager": "Sam Okafor",
+      "quoted_sell_ex_gst": "48000.00",
+      "percent_complete": null,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "30000.00",
+          "actual_cost_to_date": "11000.00",
+          "estimated_hours": "300",
+          "actual_hours": "110",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "6000.00",
+          "actual_cost_to_date": "1800.00"
+        }
+      ]
+    },
+    {
+      "id": "1040",
+      "name": "Car park exhaust fans",
+      "client": "Riverside Plaza Management",
+      "site": "Riverside Plaza car park, Docklands",
+      "stage": "In progress",
+      "project_manager": "Mei Lin Tan",
+      "quoted_sell_ex_gst": "60000.00",
+      "percent_complete": 40,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "15000.00",
+          "actual_cost_to_date": "6000.00",
+          "estimated_hours": "150",
+          "actual_hours": "60",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "25000.00",
+          "actual_cost_to_date": "10000.00"
+        },
+        {
+          "name": "Subcontractors",
+          "estimated_cost": "3000.00",
+          "actual_cost_to_date": "1200.00"
+        },
+        {
+          "name": "Equipment hire",
+          "estimated_cost": "2000.00",
+          "actual_cost_to_date": "920.00"
+        }
+      ]
+    },
+    {
+      "id": "1041",
+      "name": "Cool room evaporator replacement, supermarket",
+      "client": "Harvest Lane Grocers",
+      "site": "Harvest Lane, Ringwood",
+      "stage": "In progress",
+      "project_manager": "Tom Reilly",
+      "quoted_sell_ex_gst": "36000.00",
+      "percent_complete": 85,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "9000.00",
+          "actual_cost_to_date": "7650.00",
+          "estimated_hours": "90",
+          "actual_hours": "76.5",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "16000.00",
+          "actual_cost_to_date": "13600.00"
+        },
+        {
+          "name": "Equipment hire",
+          "estimated_cost": "2000.00",
+          "actual_cost_to_date": "1700.00"
+        }
+      ]
+    },
+    {
+      "id": "1042",
+      "name": "Chiller replacement, cold-storage warehouse",
+      "client": "Frostline Logistics",
+      "site": "Frostline cold store, Dandenong South",
+      "stage": "In progress",
+      "project_manager": "Dave Kowalski",
+      "quoted_sell_ex_gst": "80000.00",
+      "percent_complete": 50,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "24000.00",
+          "actual_cost_to_date": "17500.00",
+          "estimated_hours": "240",
+          "actual_hours": "175",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "30000.00",
+          "actual_cost_to_date": "16500.00"
+        },
+        {
+          "name": "Subcontractors",
+          "estimated_cost": "8000.00",
+          "actual_cost_to_date": "4000.00"
+        },
+        {
+          "name": "Equipment hire",
+          "estimated_cost": "4000.00",
+          "actual_cost_to_date": "2500.00"
+        }
+      ]
+    },
+    {
+      "id": "1043",
+      "name": "BMS controls upgrade, university library",
+      "client": "Hillcrest Institute of Technology",
+      "site": "Hillcrest Institute, library building",
+      "stage": "In progress",
+      "project_manager": "Mei Lin Tan",
+      "quoted_sell_ex_gst": "75000.00",
+      "percent_complete": 20,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "25000.00",
+          "actual_cost_to_date": "5000.00",
+          "estimated_hours": "250",
+          "actual_hours": "50",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "20000.00",
+          "actual_cost_to_date": "4000.00"
+        },
+        {
+          "name": "Subcontractors",
+          "estimated_cost": "15000.00",
+          "actual_cost_to_date": "3000.00"
+        }
+      ]
+    },
+    {
+      "id": "1044",
+      "name": "Cooling tower water treatment upgrade",
+      "client": "Greenvale Foods",
+      "site": "Greenvale Foods plant, Laverton North",
+      "stage": "In progress",
+      "project_manager": "Dave Kowalski",
+      "quoted_sell_ex_gst": "35000.00",
+      "percent_complete": 30,
+      "cost_centres": [
+        {
+          "name": "Labour",
+          "estimated_cost": "10000.00",
+          "actual_cost_to_date": "3000.00",
+          "estimated_hours": "100",
+          "actual_hours": "30",
+          "hourly_rate": "100.00"
+        },
+        {
+          "name": "Materials",
+          "estimated_cost": "12000.00",
+          "actual_cost_to_date": "-1250.00"
+        },
+        {
+          "name": "Subcontractors",
+          "estimated_cost": "6000.00",
+          "actual_cost_to_date": "1800.00"
+        }
+      ]
+    }
+  ]
+}
