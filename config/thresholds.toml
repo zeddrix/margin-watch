@@ -1,0 +1,13 @@
+# Status thresholds for margin-watch. Values are compared against unrounded figures.
+# Percentages are in percent units (10.0 means 10%). Erosion is in percentage points.
+# Rules are checked in order: NEEDS_REVIEW, LOSS (forecast margin < 0), AT_RISK, WATCH, ON_TRACK.
+
+[status]
+# AT_RISK when forecast margin is strictly BELOW this.
+at_risk_margin_pct = 10.0
+# AT_RISK when erosion is AT OR ABOVE this.
+at_risk_erosion_pts = 8.0
+# WATCH when erosion is AT OR ABOVE this.
+watch_erosion_pts = 3.0
+# WATCH when any cost centre's overrun is AT OR ABOVE this.
+watch_overrun_pct = 15.0

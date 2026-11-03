@@ -1,0 +1,57 @@
+[project]
+name = "margin-watch"
+version = "0.1.0"
+description = "Morning margin check for HVAC jobs: calculations in code, verified AI summary, Excel report, Graph email draft."
+authors = [{ name = "Zeddrix Fabian" }]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "anthropic>=2.4.0",
+    "httpx>=0.28.1",
+    "openpyxl>=3.1.5",
+    "pandas>=3.1.0",
+    "pydantic>=2.14.2",
+    "python-dotenv>=1.2.4",
+    "typer>=0.27.3",
+]
+
+[project.scripts]
+margin-watch = "margin_watch.cli:app"
+
+[build-system]
+requires = ["uv_build>=0.10.7,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "margin_watch"
+module-root = ""
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "N", "ANN", "PT", "DTZ"]
+ignore = ["ANN401"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["ANN"]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+filterwarnings = ["error"]
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.170.14",
+    "mypy>=2.4.1",
+    "pandas-stubs>=3.1.0.261029",
+    "pytest>=9.2.0",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.17.3",
+]
