@@ -43,7 +43,7 @@ plugins = ["pydantic.mypy"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers"
+addopts = "-ra --strict-markers --cov=margin_watch --cov-branch --cov-report=term-missing:skip-covered --cov-fail-under=90"
 filterwarnings = ["error"]
 
 [dependency-groups]
@@ -55,3 +55,12 @@ dev = [
     "pytest-cov>=7.1.0",
     "ruff>=0.17.3",
 ]
+
+[tool.coverage.run]
+branch = true
+source = ["margin_watch"]
+
+[tool.coverage.report]
+# 90% for the package (pytest --cov-fail-under); calc.py, status.py and validate.py must be 100%,
+# checked by `make test` with `coverage report --include ... --fail-under=100`.
+show_missing = true

@@ -20,3 +20,9 @@
 13. **Average forecast margin is sell-weighted** across jobs that aren't NEEDS_REVIEW. · A $250k job matters more than a $25k one; this is the portfolio's real margin. · Alternative: simple mean.
 14. **`--as-of` defaults to the file's `snapshot_date`.** · Keeps runs deterministic and never reads the clock for business logic. · Alternative: today's date.
 15. **Job ids are Simpro-style numbers ("1042").** · Realistic, and it exercises the rule that identifiers in facts don't trip the validator.
+
+## Implementation (Phase 3)
+
+16. **`compute_metrics` states its precondition with `assert`** (every value is known because `review_problem` ran first) instead of a `raise` branch that no caller can reach. · Keeps calc.py at a true 100% coverage without `# pragma: no cover` exclusions; under `python -O` a missing value would still fail loudly in the arithmetic (TypeError), never be defaulted. · Alternative: a raise plus a coverage exclusion (rejected as greenwashing the coverage target).
+17. **Coverage is enforced on every pytest run** (`--cov-fail-under=90` in `pyproject.toml`), and `make test` / CI also run `coverage report --include=calc.py,status.py,validate.py --fail-under=100`. · The completion gate then can't pass with low coverage. · Alternative: report-only coverage.
+18. **Dates are formatted with explicit English day/month names**, not `strftime("%a")`. · Output must not depend on the machine's locale.
