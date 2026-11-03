@@ -19,6 +19,14 @@ Screenshots in `docs/screenshots/` (taken with `dashboard/scripts/screenshots.mj
 | 6 | At 1024 px the KPI tiles dropped to 2 × 2 although 4 fit, pushing the table down. | Tiles go 2 × 2 only below 900 px. |
 | 7 | At 1024 px the table still scrolled inside its card and "Main driver" was clipped. | At ≤ 1100 px: 13 px table text, a narrower job column, PM may wrap, 8 px cell padding. Measured afterwards: the table's scroll width equals its client width at 1024 (974 = 974) and 1280 (1190 = 1190); no page overflow at 390. |
 
+## Round 3 (after hand-over, from Zeddrix's feedback: "the morning summary looks exhausting")
+
+| # | Problem | Fix |
+|---|---|---|
+| 8 | The demo AI's summary was one dense 6-sentence paragraph with 10 underlined links; nothing stood out. | AC-91: the summary renders as short rows: one per sentence for a single-paragraph AI answer, one per paragraph for the template. No words or numbers change, so verification is unaffected. Each row has a 3px left edge in the status colour of its first linked job (red loss, orange at risk, yellow watch, grey review), and the closing "In total…" line is muted. Rows are spaced 10px apart at 16px text (15px on phones). |
+| 9 | Ten full-strength underlines made the text noisy. | Job links are semi-bold teal with a faint underline (40% of the link colour) that turns solid on hover; still underlined, so they aren't marked by colour alone. |
+| 10 | In dark mode the first edge colours were wrong: "at risk" came out near-white and "watch" muddy brown. | New `--risk-strong`, `--watch-strong` and `--review-strong` tokens per theme, used only for the edges. axe is still clean in both themes. |
+
 ## Checked and fine
 
 - Status always shows icon + word + colour; numbers right-aligned with tabular figures; $ at risk bold.

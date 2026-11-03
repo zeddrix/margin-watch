@@ -27,6 +27,9 @@
 	--loss-fg: #991b1b;
 	--loss-border: #fecaca;
 	--loss-strong: #dc2626;
+	--risk-strong: #ea580c;
+	--watch-strong: #ca8a04;
+	--review-strong: #94a3b8;
 	--risk-bg: #ffedd5;
 	--risk-fg: #9a3412;
 	--risk-border: #fed7aa;
@@ -73,6 +76,9 @@
 		--loss-fg: #fecaca;
 		--loss-border: #7f1d1d;
 		--loss-strong: #f87171;
+		--risk-strong: #fb923c;
+		--watch-strong: #facc15;
+		--review-strong: #64748b;
 		--risk-bg: #4a1d0a;
 		--risk-fg: #fed7aa;
 		--risk-border: #7c2d12;

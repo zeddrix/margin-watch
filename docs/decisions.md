@@ -65,3 +65,9 @@
 43. **`make demo` simulates the two scheduled 6:30 AM runs** (`--generated-at <date>T06:30:00+11:00`) so the dashboard, QA checklist and Loom script show the same stamps every time.
 44. **`scripts/check_frozen_tests.py`** (new, not a guardrail file) runs in `make test` and CI: no test file that existed at any `tests-approved-*` tag may differ from the tag.
 45. **CI uses Node 24 LTS and Python 3.12 via uv**, `uv sync --frozen` and `npm ci`, fetches tags for the frozen-test check, and uploads the Playwright report on failure.
+
+## After hand-over
+
+46. **The summary renders as short toned rows (AC-91) instead of one paragraph.** · Zeddrix found the single-paragraph demo summary exhausting to read. Splitting is purely presentational, so the verified text and the email are untouched. · Alternative: change the demo model to write paragraphs (would make the committed fixtures stale).
+47. **CI actions bumped to `actions/checkout@v7` and `astral-sh/setup-uv@v10`** (both Node 24), clearing GitHub's Node 20 deprecation warning. `setup-node@v4` and `upload-artifact@v4` weren't flagged and stay as they are.
+48. **The GitHub repo is private** (`zeddrix/margin-watch`). · The Loom script and OVERVIEW name a real person and the interview context. CI runs on private repos too.

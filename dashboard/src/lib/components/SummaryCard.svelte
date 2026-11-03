@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { formatMoney, formatPct } from '../format';
-	import { fallbackExplanation, summaryBadge, summaryParagraphs } from '../summary';
+	import { fallbackExplanation, summaryBadge, summaryItems } from '../summary';
 	import type { Run } from '../types';
 	import StatusPill from './StatusPill.svelte';
 
@@ -10,7 +10,7 @@
 	}: { run: Run; onOpenJob: (jobId: string, trigger: HTMLElement) => void } = $props();
 
 	const badge = $derived(summaryBadge(run.summary));
-	const paragraphs = $derived(summaryParagraphs(run.summary.text, run.jobs));
+	const items = $derived(summaryItems(run.summary.text, run.jobs));
 	const why = $derived(fallbackExplanation(run.summary));
 	const calls = $derived(run.jobs.filter((j) => j.status === 'LOSS' || j.status === 'AT_RISK'));
 </script>
@@ -60,19 +60,19 @@
 			</ul>
 		{/if}
 	</aside>
-	<div class="text">
-		{#each paragraphs as segments, i (i)}
-			<p>
-				{#each segments as segment, j (j)}{#if segment.kind === 'job'}<button
+	<ul class="text" aria-label="Summary">
+		{#each items as item, i (i)}
+			<li class="row" data-testid="summary-row" data-tone={item.tone ?? 'none'}>
+				{#each item.segments as segment, j (j)}{#if segment.kind === 'job'}<button
 							type="button"
 							class="job-link"
 							data-testid="summary-link-{segment.jobId}"
 							onclick={(event) => onOpenJob(segment.jobId, event.currentTarget)}
 							>{segment.text}</button
 						>{:else}{segment.text}{/if}{/each}
-			</p>
+			</li>
 		{/each}
-	</div>
+	</ul>
 	</div>
 	{#if why}
 		<details class="why" data-testid="summary-why">
@@ -135,11 +135,35 @@
 	}
 	.text {
 		max-width: 70ch;
-		font-size: 16.5px;
-		line-height: 1.6;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		display: grid;
+		gap: 10px;
+		font-size: 16px;
+		line-height: 1.55;
 	}
-	.text p {
-		margin: 0 0 10px;
+	/* One short row per job or topic; the left edge carries the status colour (the words carry
+	   the meaning, so colour is never the only signal). */
+	.row {
+		padding: 2px 0 2px 14px;
+		border-left: 3px solid var(--row-edge, var(--border-strong));
+	}
+	.row[data-tone='LOSS'] {
+		--row-edge: var(--loss-strong);
+	}
+	.row[data-tone='AT_RISK'] {
+		--row-edge: var(--risk-strong);
+	}
+	.row[data-tone='WATCH'] {
+		--row-edge: var(--watch-strong);
+	}
+	.row[data-tone='NEEDS_REVIEW'] {
+		--row-edge: var(--review-strong);
+	}
+	.row[data-tone='none'] {
+		--row-edge: transparent;
+		color: var(--muted);
 	}
 	.job-link {
 		font: inherit;
@@ -147,15 +171,17 @@
 		background: none;
 		border: 0;
 		padding: 0;
+		font-weight: 600;
 		text-decoration: underline;
 		text-decoration-thickness: 1px;
-		text-underline-offset: 3px;
+		text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+		text-underline-offset: 4px;
 		cursor: pointer;
 		text-align: left;
 	}
 	.job-link:hover {
 		color: var(--accent-hover);
-		text-decoration-thickness: 2px;
+		text-decoration-color: currentColor;
 	}
 	.why {
 		margin-top: 4px;
@@ -290,7 +316,7 @@
 			padding: 16px;
 		}
 		.text {
-			font-size: 16px;
+			font-size: 15px;
 		}
 	}
 </style>
