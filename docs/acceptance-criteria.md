@@ -87,16 +87,55 @@ The contract. Each later phase turns its bullets into numbered criteria before w
 
 **AC-33 Display formatting.** Money: 12,480.50 → `$12,481`; 12,480.49 → `$12,480`; −1,250 → `-$1,250`; 0 → `$0`. Percent: 6.25 → `6.3%`; −1.25 → `-1.3%`; −0.04 → `0.0%`; 15 → `15.0%`. Points: 8 → `8.0 pts`; 18.75 → `18.8 pts`. Date: 2026-11-04 → `Wed 4 Nov 2026`.
 
-## Phase 4: outputs and CLI (to be numbered in Phase 4)
+## Phase 4: outputs and CLI
 
-- Run JSON schema: schema version, as_of, generated_at, source, thresholds used, counts per status, portfolio figures, every job with all fields, cost centres, status, reason, review code and main driver, and the summary block.
-- `runs/index.json` lists runs newest first, with counts and dollars at risk; re-running a date replaces its entry.
-- Excel "Summary", "Jobs" and "Cost centres" sheets: values, AUD and % number formats, frozen header, autofilter, column widths, status fill colour plus the status word, sort order.
-- The exact Graph `POST /me/sendMail` payload shape, recipient from `config/settings.toml`, the subject line format.
-- The email lists only non-ON_TRACK jobs, carries the summary with its provider label, and a footer; its HTML is a snapshot.
-- `DryRunMailer` writes the JSON and HTML preview and opens no socket.
-- Template summary wording (snapshot).
-- CLI: `--as-of` determinism, exit codes 0 / 2 / 1, readable error for a malformed file, `--ai off` uses the template.
+Unless stated, "the 4 Nov run" means `margin-watch run --source data/sample/jobs-2026-11-04.json --ai off --generated-at 2026-11-04T06:30:00+11:00 --output-dir <tmp>`. JSON money is a number rounded to cents; JSON percentages and points are numbers rounded to 4 decimals.
+
+### Run JSON
+
+**AC-34 Run JSON top level.** The 4 Nov run writes `runs/2026-11-04.json` with exactly the keys `schema_version` (1), `as_of` ("2026-11-04"), `generated_at` ("2026-11-04T06:30:00+11:00"), `source` (`{"kind": "sample_file", "name": "jobs-2026-11-04.json", "sample_data": true}`), `thresholds` (`{"at_risk_margin_pct": 10.0, "at_risk_erosion_pts": 8.0, "watch_erosion_pts": 3.0, "watch_overrun_pct": 15.0}`), `counts` (`{"LOSS": 1, "AT_RISK": 2, "WATCH": 2, "NEEDS_REVIEW": 2, "ON_TRACK": 7}`), `portfolio` (`{"total_jobs": 14, "jobs_needing_action": 3, "jobs_to_review": 2, "total_dollars_at_risk": 66300.0, "average_forecast_margin_pct": 15.7394}`), `jobs` and `summary`.
+
+**AC-35 Run JSON jobs.** `jobs` is in risk order (1042, 1038, 1035, 1033, 1040, 1039, 1044, 1037, 1031, 1032, 1034, 1036, 1041, 1043). Each job has `id`, `name`, `client`, `site`, `stage`, `project_manager`, `quoted_sell_ex_gst`, `percent_complete`, `status`, `reason`, `review_code`, `main_driver`, `estimated_total`, `forecast_total`, `quoted_margin_pct`, `forecast_margin_pct`, `margin_erosion_pts`, `dollars_at_risk` and `cost_centres` (each: `name`, `estimated_cost`, `actual_cost_to_date`, `forecast_at_completion`, `overrun_dollars`, `overrun_pct`, `estimated_hours`, `actual_hours`, `hourly_rate`). Job 1042 has sell 80000.0, percent 60.0, estimated 66000.0, forecast 82000.0, quoted 17.5, forecast margin −2.5, erosion 20.0, at risk 16000.0, and Labour 24000.0 / 21600.0 / 36000.0 / 12000.0 / 50.0 with hours 240.0 / 216.0 at 100.0. NEEDS_REVIEW job 1039 has `percent_complete` null, `review_code` "missing_percent_complete", every computed field null (including each cost centre's forecast and overruns), and its raw costs (Labour 30000.0 / 12000.0).
+
+**AC-36 Run index.** After running 3 Nov and then 4 Nov into the same output dir, `runs/index.json` is `{"schema_version": 1, "runs": [...]}` with 4 Nov first; each entry has `as_of`, `file` ("2026-11-04.json"), `generated_at`, `counts`, `jobs_needing_action`, `total_dollars_at_risk` and `summary_source`. Re-running 3 Nov leaves exactly 2 entries, still 4 Nov first.
+
+### Excel report (`margin-report-<as_of>.xlsx`)
+
+**AC-37 Summary sheet.** Sheets are exactly "Summary", "Jobs", "Cost centres". On "Summary", column A labels map to column B values: "Run date" → the date 2026-11-04 (format `ddd d mmm yyyy`), "Source" → "jobs-2026-11-04.json", "Loss" 1, "At risk" 2, "Watch" 2, "Needs review" 2, "On track" 7, "Total jobs" 14, "Jobs needing action" 3, "Total dollars at risk" 66300 (AUD format), "Average forecast margin" 0.157394 (format `0.0%`), "Summary" → the summary text, "Written by" → "Template summary". A1 is "Margin Watch report" and the sheet says "Sample data".
+
+**AC-38 Jobs sheet values.** Row 1 headers are exactly Job, Client, Site, PM, Sell, Quoted margin %, Forecast margin %, Erosion (pts), Dollars at risk, Status, Main driver, Reason. Rows 2–15 are in risk order. Row 2 is "1042 Chiller replacement, cold-storage warehouse", "Frostline Logistics", "Frostline cold store, Dandenong South", "Dave Kowalski", 80000, 0.175, −0.025, 20, 16000, "LOSS", "Labour", and the 1042 reason. The 1039 row has Sell 48000, empty quoted margin, forecast margin, erosion, dollars at risk and main driver cells, status "NEEDS REVIEW" and its reason. Status words: LOSS, AT RISK, WATCH, NEEDS REVIEW, ON TRACK.
+
+**AC-39 Jobs sheet formatting.** Sell and Dollars at risk use `"$"#,##0.00`; the margin columns use `0.0%`; erosion uses `0.0`. Freeze panes at A2, autofilter `A1:L15`, bold header, column widths A 46, B 28, C 36, D 16, E 14, F 12, G 12, H 11, I 14, J 15, K 16, L 90, and Reason wraps. The status cell has a solid fill: LOSS `FCA5A5` (red), AT RISK `FDBA74` (amber), WATCH `FEF08A` (yellow), NEEDS REVIEW `CBD5E1` (slate), ON TRACK `86EFAC` (green), and shows the status word.
+
+**AC-40 Cost centres sheet.** Headers exactly Job, Cost centre, Estimated, Actual to date, Forecast at completion, Overrun ($), Overrun %. One row per cost centre, jobs in risk order and cost centres in file order: 49 rows (2–50); row 2 is "1042 Chiller replacement, cold-storage warehouse", "Labour", 24000, 21600, 36000, 12000, 0.5. NEEDS_REVIEW rows have empty forecast and overrun cells. Money cells use `"$"#,##0.00`, Overrun % uses `0.0%`, freeze panes A2, autofilter `A1:G50`.
+
+### Email (Microsoft Graph `sendMail`, dry run)
+
+**AC-41 Graph payload shape.** `email/graph-sendmail-2026-11-04.json` is exactly `{"message": {"subject": ..., "body": {"contentType": "HTML", "content": ...}, "toRecipients": [{"emailAddress": {"address": "ops@example.com"}}]}, "saveToSentItems": true}`, with no other keys, and the recipient comes from `config/settings.toml` (`[email] to`).
+
+**AC-42 Subject line.** 4 Nov: `Margin watch, Wed 4 Nov: 1 loss, 2 at risk, 2 to review`. 3 Nov: `Margin watch, Tue 3 Nov: 1 loss, 1 at risk, 2 to review`. Two losses read `2 losses`. A run with only WATCH and ON_TRACK jobs: `Margin watch, Wed 4 Nov: 1 on watch`. A run where every job is ON_TRACK (2 jobs): `Margin watch, Wed 4 Nov: all 2 jobs on track`.
+
+**AC-43 Email body.** The 4 Nov email HTML (payload `content`) equals `agent/tests/snapshots/email-2026-11-04.html`: the summary paragraphs, the label line "Template summary", a table listing only the 7 non-ON_TRACK jobs in risk order (status word, job and client, PM, forecast margin, dollars at risk, reason; "—" for NEEDS_REVIEW figures), and a footer naming the run time (6:30 AM Melbourne), the source file, the Excel file, "Sample data only" and "Dry run". No ON_TRACK job id appears. `email/preview-2026-11-04.html` has the same HTML.
+
+**AC-44 DryRunMailer sends nothing.** `DryRunMailer(dir).send(draft)` writes `graph-sendmail-<as_of>.json` (the payload, pretty-printed) and `preview-<as_of>.html`, returns both paths with `sent` false, and works while creating any socket raises an error.
+
+### Template summary
+
+**AC-45 Template summary wording.** For 4 Nov the template text equals `agent/tests/snapshots/template-summary-2026-11-04.txt`: an overview paragraph (counts and total overruns), one "Call {PM} about {id} {name}." paragraph per LOSS and AT_RISK job followed by its reason, and a final paragraph naming WATCH jobs and NEEDS_REVIEW jobs with their PMs. Paragraphs are separated by a blank line. For 2 ON_TRACK jobs with no overrun it is exactly `Of 2 jobs, 2 are on track.`; for one NEEDS_REVIEW job (PM "Ann Lee", id "X1", name "Pump swap") it is `Of 1 job, 1 needs a data check.` + blank line + `Data to check in Simpro: X1 Pump swap (Ann Lee).`
+
+### CLI
+
+**AC-46 Successful run.** The 4 Nov run exits 0, writes `runs/2026-11-04.json`, `runs/index.json`, `margin-report-2026-11-04.xlsx`, `email/graph-sendmail-2026-11-04.json` and `email/preview-2026-11-04.html`, and prints each path. Without `--as-of` the as-of date is the file's `snapshot_date`; with `--as-of 2026-11-05` the files are named for 2026-11-05 and `as_of` is "2026-11-05".
+
+**AC-47 Deterministic.** Two runs of the same file with the same `--generated-at` into different dirs produce byte-identical run JSON, Graph JSON and preview HTML, and identical Excel cell values. With a different `--generated-at`, the run JSON differs only in `generated_at`.
+
+**AC-48 Invalid input exits 2.** A missing file, a file that isn't JSON, and a job missing `client` each exit 2 with a readable message starting `Invalid input file:` that names the problem (the file, or the job id and field), print no traceback, and write no output files.
+
+**AC-49 Unexpected errors exit 1.** When the output dir can't be created (it is an existing file), the run exits 1 with a message starting `Unexpected error:` and no traceback. A malformed `--as-of` such as `4/11/2026` is a usage error: exit 2 with a message naming the `YYYY-MM-DD` format and no traceback.
+
+**AC-50 `--ai off` uses the template.** The 4 Nov run's `summary` is `{"text": <template text>, "source": "template", "provider": "none", "model": null, "fallback_reason": "ai_off", "rejected_tokens": []}`.
+
+**AC-51 NEEDS_REVIEW isn't an error.** A file whose only two jobs are both NEEDS_REVIEW exits 0, with counts NEEDS_REVIEW 2, `average_forecast_margin_pct` null and total dollars at risk 0.0.
 
 ## Phase 5: summary, providers and number verification (to be numbered in Phase 5)
 

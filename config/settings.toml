@@ -1,0 +1,12 @@
+# Run settings for margin-watch. Paths are relative to the repo root.
+
+[run]
+# Used when `margin-watch run` is given no --source.
+sample_source = "data/sample/jobs-2026-11-04.json"
+output_dir = "output"
+# Run times are shown in this time zone.
+timezone = "Australia/Melbourne"
+
+[email]
+# Recipient of the morning email draft (dry run only: nothing is sent).
+to = "ops@example.com"

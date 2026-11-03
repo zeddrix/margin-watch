@@ -7,6 +7,8 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
+from pydantic import BaseModel, ConfigDict
+
 from margin_watch.models import Thresholds
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -48,3 +50,17 @@ def load_thresholds(path: Path | None = None) -> Thresholds:
         except InvalidOperation as error:
             raise ConfigError(f"{path.name}: `{key}` must be a number") from error
     return Thresholds(**values)
+
+
+class Settings(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    sample_source: Path
+    output_dir: Path
+    timezone: str
+    email_to: str
+
+
+def load_settings(path: Path | None = None) -> Settings:
+    """Read config/settings.toml. Relative paths resolve against the repo root."""
+    raise NotImplementedError

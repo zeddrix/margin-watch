@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 from enum import StrEnum
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -109,3 +110,32 @@ class PortfolioSummary(_Frozen):
     jobs_to_review: int
     total_dollars_at_risk: Decimal
     average_forecast_margin_pct: Decimal | None
+
+
+SummarySource = Literal["ai_verified", "template"]
+Provider = Literal["demo", "demo-bad", "local", "claude", "none"]
+
+
+class Summary(_Frozen):
+    """The plain-English summary and where it came from. See docs/spec.md, "Summary flow"."""
+
+    text: str
+    source: SummarySource
+    provider: Provider
+    model: str | None
+    fallback_reason: str | None
+    rejected_tokens: tuple[str, ...] = ()
+
+
+class RunReport(_Frozen):
+    """Everything one run produced, before it is written to files."""
+
+    schema_version: int = 1
+    as_of: date
+    generated_at: datetime
+    source_name: str
+    sample_data: bool
+    thresholds: Thresholds
+    assessments: tuple[JobAssessment, ...]
+    portfolio: PortfolioSummary
+    summary: Summary

@@ -6,6 +6,7 @@
 | 1. Plan | done | n/a | b8cddaa | `docs/spec.md` (formulas, rules, hand-calculated tables for both dates), Phase 2 ACs AC-01..AC-33, later phases as bullets, 14 fictional jobs × 2 dates, decisions 1–15. |
 | 2. Calculation tests (red) | done | 91 red + 1 smoke | tag `tests-approved-2` | Red run: `91 failed, 1 passed`; all 91 failures are `NotImplementedError` (no import/fixture errors). Integrity: 7 test files, 33 ACs covered. Self-review done (see below). |
 | 3. Calculations (green) | done | 92 passed (91 AC + smoke) | see `git log` (feat: margin calculations…) | ruff, ruff format, mypy --strict clean. Coverage 95.8% package; calc.py and status.py 100% (branch). Integrity OK (33 ACs). Diff vs `tests-approved-2` on the test dirs is empty. |
+| 4a. Outputs & CLI tests (red) | done | 33 red + 92 green | tag `tests-approved-4` | AC-34..AC-51 written first. Red run: `33 failed, 92 passed`; every failure is `NotImplementedError` (raised directly, or the CLI stub exiting 1 with `Result NotImplementedError()`). Snapshots `email-2026-11-04.html` and `template-summary-2026-11-04.txt` hand-written and reviewed line by line. Integrity: 12 test files, 51 ACs. |
 
 ## Phase 2 self-review notes
 
