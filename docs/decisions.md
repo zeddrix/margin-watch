@@ -26,3 +26,14 @@
 16. **`compute_metrics` states its precondition with `assert`** (every value is known because `review_problem` ran first) instead of a `raise` branch that no caller can reach. · Keeps calc.py at a true 100% coverage without `# pragma: no cover` exclusions; under `python -O` a missing value would still fail loudly in the arithmetic (TypeError), never be defaulted. · Alternative: a raise plus a coverage exclusion (rejected as greenwashing the coverage target).
 17. **Coverage is enforced on every pytest run** (`--cov-fail-under=90` in `pyproject.toml`), and `make test` / CI also run `coverage report --include=calc.py,status.py,validate.py --fail-under=100`. · The completion gate then can't pass with low coverage. · Alternative: report-only coverage.
 18. **Dates are formatted with explicit English day/month names**, not `strftime("%a")`. · Output must not depend on the machine's locale.
+
+## Outputs and CLI (Phase 4)
+
+19. **Run JSON carries numbers, not strings** (money to cents, percentages and points to 4 dp, `-0.0` normalised to `0.0`). · The dashboard can sort and compare without parsing; Python stays the source of truth for every figure. · Alternative: Decimal strings (exact but awkward in the browser).
+20. **`--generated-at` and `--output-dir` CLI options.** · Fixture generation, `make demo` and tests need reproducible timestamps and an isolated output folder; business logic still never reads the clock (as-of comes from the file). `make demo` passes `<as_of>T06:30:00+11:00` to simulate the scheduled 6:30 AM run. · Alternative: env vars.
+21. **`--ai off` records `fallback_reason: "ai_off"`.** · Every template summary then says why it is a template. · Alternative: null.
+22. **The run index is updated in place** (replace the entry for the same as-of, sort newest first) rather than rebuilt by scanning `runs/`. · One stray file in the folder can't break the morning run. · Alternative: rebuild from every run file.
+23. **Subject line counts LOSS, AT_RISK and NEEDS_REVIEW** (the plan's example); WATCH only appears when nothing else does, and "all N jobs on track" when nothing is flagged.
+24. **Template summary leads with "Call {PM} about {id} {name}."** for each LOSS and AT_RISK job, then lists WATCH and NEEDS_REVIEW jobs with their PMs. · The ops manager's first question is who to phone.
+25. **Excel stores percentages as fractions with a `0.0%` format** and keeps money to cents with `"$"#,##0.00`. Workbook created/modified timestamps are set to the run's `generated_at`. · Native Excel behaviour; the values stay sortable and summable. Zip entry times inside .xlsx still vary, so determinism is checked on cell values.
+26. **A usage error (bad `--as-of`, unknown `--ai`) exits 2**, like an invalid file, using the CLI framework's standard usage message.

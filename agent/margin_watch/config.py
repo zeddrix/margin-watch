@@ -63,4 +63,22 @@ class Settings(BaseModel):
 
 def load_settings(path: Path | None = None) -> Settings:
     """Read config/settings.toml. Relative paths resolve against the repo root."""
-    raise NotImplementedError
+    path = path or CONFIG_DIR / "settings.toml"
+    document = read_toml(path)
+    run = document.get("run", {})
+    email = document.get("email", {})
+    required = {
+        "[run] sample_source": run.get("sample_source"),
+        "[run] output_dir": run.get("output_dir"),
+        "[run] timezone": run.get("timezone"),
+        "[email] to": email.get("to"),
+    }
+    for key, value in required.items():
+        if not isinstance(value, str) or not value:
+            raise ConfigError(f"{path.name}: `{key}` is missing")
+    return Settings(
+        sample_source=REPO_ROOT / str(run["sample_source"]),
+        output_dir=REPO_ROOT / str(run["output_dir"]),
+        timezone=str(run["timezone"]),
+        email_to=str(email["to"]),
+    )

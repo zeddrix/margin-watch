@@ -54,6 +54,7 @@ dev = [
     "pytest>=9.2.0",
     "pytest-cov>=7.1.0",
     "ruff>=0.17.3",
+    "types-openpyxl>=3.1.5.20261017",
 ]
 
 [tool.coverage.run]
