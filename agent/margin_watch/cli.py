@@ -9,6 +9,7 @@ from typing import Annotated
 from zoneinfo import ZoneInfo
 
 import typer
+from dotenv import load_dotenv
 
 from margin_watch.config import load_settings, load_thresholds
 from margin_watch.formatting import format_date
@@ -16,8 +17,10 @@ from margin_watch.labels import summary_label
 from margin_watch.models import RunReport, Status, Summary
 from margin_watch.run import build_report, write_outputs
 from margin_watch.sources import SampleFileSource, SourceError
+from margin_watch.summarise import create_summary
 
 AI_CHOICES = ("demo", "demo-bad", "local", "claude", "off")
+AGENT_DIR = Path(__file__).resolve().parents[1]
 
 app = typer.Typer(
     add_completion=False,
@@ -65,9 +68,17 @@ def _parse_ai(value: str | None) -> str:
 
 def make_summary(ai: str, report: RunReport) -> Summary | None:
     """The AI summary for `ai`, or None for the template (`off`)."""
-    if ai == "off":
-        return None
-    raise NotImplementedError(f"AI provider {ai!r} arrives in Phase 5")
+    return create_summary(report, ai, os.environ)
+
+
+def _load_env_file() -> None:
+    """Load agent/.env if present, never overriding real env vars.
+
+    `MARGIN_WATCH_ENV_FILE` points elsewhere; an empty value skips it (tests do this).
+    """
+    path = os.environ.get("MARGIN_WATCH_ENV_FILE", str(AGENT_DIR / ".env"))
+    if path and Path(path).is_file():
+        load_dotenv(path, override=False)
 
 
 def _headline(report: RunReport) -> str:
@@ -105,6 +116,7 @@ def run(
     ] = None,
 ) -> None:
     """Run the morning margin check: Excel report, run JSON and a dry-run email draft."""
+    _load_env_file()
     run_date = _parse_as_of(as_of)
     choice = _parse_ai(ai)
     try:
