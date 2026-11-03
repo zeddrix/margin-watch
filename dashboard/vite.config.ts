@@ -13,7 +13,7 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 			// A static site: the dashboard only reads the run files in static/runs/.
-			adapter: adapter({ fallback: 'index.html' })
+			adapter: adapter()
 		})
 	],
 	test: {

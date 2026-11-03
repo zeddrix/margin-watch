@@ -53,9 +53,15 @@
 ## Dashboard (Phase 6)
 
 36. **Dashboard E2E tests intercept `runs/*.json` and serve the committed fixtures** (Playwright `page.route`) instead of copying them into `static/runs/`. · The build stays the real build; tests can't depend on whatever was last synced; empty and malformed states need no special build. · Alternative: a test-only static dir.
-37. **The dashboard is an SPA (`ssr = false`, adapter-static with an `index.html` fallback)** that fetches the run files in the browser. · New runs appear after `sync-runs` without rebuilding. · Alternative: prerender each run at build time.
+37. **The dashboard is a client-rendered single page (`ssr = false`, prerendered shell, adapter-static)** that fetches the run files in the browser. · New runs appear after `sync-runs` without rebuilding. · Alternative: prerender each run at build time.
 38. **Risk order is recomputed in the browser with the agent's rule** (status, $ at risk desc, id) so "Status" sorting always restores it, whatever order the rows are in.
 39. **Dashboard deltas (since last run) are computed in TypeScript from the run files' numbers** (counts, cents, points). This is display arithmetic in code, not AI maths; the model never sees or writes them.
 40. **"Call today" list in the summary card** (added during the visual review): LOSS and AT_RISK jobs with PM and $ at risk. · Directly answers the brief's 5-second question; the summary prose stays for context.
 41. **SvelteKit 3.1 / Svelte 5 / Vite 8 / Tailwind 4** from `npx sv create` + `sv add` (current stable on 3 Nov 2026). Components use scoped CSS on CSS-variable tokens; Tailwind supplies the reset and `sr-only`. The system font stack (Inter if installed) avoids a network font.
 42. **Playwright runs on port 4174** so it never collides with `make demo` on 4173.
+
+## CI, demo and hand-over (Phase 7 and Final)
+
+43. **`make demo` simulates the two scheduled 6:30 AM runs** (`--generated-at <date>T06:30:00+11:00`) so the dashboard, QA checklist and Loom script show the same stamps every time.
+44. **`scripts/check_frozen_tests.py`** (new, not a guardrail file) runs in `make test` and CI: no test file that existed at any `tests-approved-*` tag may differ from the tag.
+45. **CI uses Node 24 LTS and Python 3.12 via uv**, `uv sync --frozen` and `npm ci`, fetches tags for the frozen-test check, and uploads the Playwright report on failure.
