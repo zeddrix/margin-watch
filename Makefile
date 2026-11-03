@@ -1,5 +1,5 @@
 # margin-watch: one-day prototype. Sample data only; nothing is sent anywhere.
-#   make demo   run both sample days, build the dashboard and serve it on http://localhost:4173
+#   make demo   run both sample days, then serve the dashboard with its live Run button on http://localhost:4173
 #   make test   the full completion gate (agent + dashboard + test-integrity checks)
 #   make clean  remove generated output and build folders
 
@@ -8,10 +8,11 @@ SHELL := /bin/bash
 PORT ?= 4173
 CORE := calc.py,margin_watch/status.py,margin_watch/validate.py
 
-.PHONY: help deps test test-agent test-dashboard demo runs clean
+.PHONY: help deps test test-agent test-dashboard demo demo-fresh serve runs clean
 
 help:
-	@echo "make demo   - run 3 Nov (demo-bad) and 4 Nov (demo), build and serve the dashboard on :$(PORT)"
+	@echo "make demo       - run 3 Nov (demo-bad) and 4 Nov (demo), then serve the dashboard with its Run button on :$(PORT)"
+	@echo "make demo-fresh - same, but start from an empty dashboard (press Run to fill it)"
 	@echo "make test   - ruff, mypy, pytest + coverage, integrity checks, svelte-check, eslint, vitest, playwright"
 	@echo "make clean  - remove output/ contents and dashboard build folders"
 
@@ -38,18 +39,25 @@ runs:
 	cd agent && uv run margin-watch run --source ../data/sample/jobs-2026-11-03.json --ai demo-bad --generated-at 2026-11-03T06:30:00+11:00
 	cd agent && uv run margin-watch run --source ../data/sample/jobs-2026-11-04.json --ai demo --generated-at 2026-11-04T06:30:00+11:00
 
-demo: deps runs
-	cd dashboard && npm run sync-runs && npm run build
+# The dashboard with its live "Run this morning's check" button, served by the local helper.
+demo: deps runs serve
+
+# Same, but starting from an empty dashboard (the button fills it in): good for recording.
+demo-fresh: deps
+	find output -mindepth 1 ! -name .gitkeep -delete
+	$(MAKE) serve
+
+serve:
+	cd dashboard && npm run build
 	@echo ""
-	@echo "  Dashboard:      http://localhost:$(PORT)"
+	@echo "  Dashboard:      http://localhost:$(PORT)   (press \"Run this morning's check\")"
 	@echo "  Excel report:   $(CURDIR)/output/margin-report-2026-11-04.xlsx"
 	@echo "  Email preview:  $(CURDIR)/output/email/preview-2026-11-04.html"
 	@echo "  Graph payload:  $(CURDIR)/output/email/graph-sendmail-2026-11-04.json"
-	@echo "  Stop with Ctrl+C."
 	@echo ""
-	cd dashboard && npx vite preview --port $(PORT) --strictPort
+	cd agent && uv run margin-watch serve --port $(PORT)
 
 clean:
 	find output -mindepth 1 ! -name .gitkeep -delete
-	rm -rf dashboard/build dashboard/.svelte-kit dashboard/static/runs dashboard/test-results dashboard/playwright-report
+	rm -rf .e2e-live dashboard/build dashboard/.svelte-kit dashboard/static/runs dashboard/test-results dashboard/playwright-report
 	rm -rf agent/.pytest_cache agent/.mypy_cache agent/.ruff_cache agent/.coverage

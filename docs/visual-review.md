@@ -27,6 +27,16 @@ Screenshots in `docs/screenshots/` (taken with `dashboard/scripts/screenshots.mj
 | 9 | Ten full-strength underlines made the text noisy. | Job links are semi-bold teal with a faint underline (40% of the link colour) that turns solid on hover; still underlined, so they aren't marked by colour alone. |
 | 10 | In dark mode the first edge colours were wrong: "at risk" came out near-white and "watch" muddy brown. | New `--risk-strong`, `--watch-strong` and `--review-strong` tokens per theme, used only for the edges. axe is still clean in both themes. |
 
+## Round 4 (the live Run button)
+
+| # | Problem | Fix |
+|---|---|---|
+| 11 | At 900 px tall the Excel and email steps (with their buttons) ran below the fold while the run carried on. | Each step scrolls itself into view as it changes, so the panel follows the run (instant under reduced motion). |
+| 12 | The summary step showed 18 chips including job ids and counts ("1042", "4", "3"): noise for a non-technical viewer. | Chips for money, percentages and points only (9 on 4 Nov), plus "Also matched: 9 job numbers and counts." A failed number is always a chip. |
+| 13 | On the helper, the empty page said "Run `margin-watch run`", which is jargon and a weak first frame for the video. | In live mode: "No runs yet. Ready for this morning's check." with a plain-English description and an accent border (the static site keeps its original wording). |
+
+Screenshots: `live-run-ready-light.png`, `live-run-running-light.png`, `live-run-done-dark.png`, `live-run-made-up-number-light.png`, `live-run-390-light.png`.
+
 ## Checked and fine
 
 - Status always shows icon + word + colour; numbers right-aligned with tabular figures; $ at risk bold.

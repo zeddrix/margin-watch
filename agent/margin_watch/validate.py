@@ -72,12 +72,26 @@ def allowed_tokens(facts: Any) -> frozenset[str]:
     return frozenset(token for text in _strings(facts) for token in extract_tokens(text))
 
 
-def validate_text(text: str, allowed: frozenset[str]) -> ValidationResult:
-    """Reject the text if any number in it isn't in `allowed`. Rejected tokens are listed once."""
-    rejected: list[str] = []
+@dataclass(frozen=True)
+class NumberCheck:
+    """One number from the text, as written, and whether it matches a calculated fact."""
+
+    token: str
+    ok: bool
+
+
+def check_numbers(text: str, allowed: frozenset[str]) -> list[NumberCheck]:
+    """Every distinct number in `text`, in order of appearance, checked against `allowed`."""
+    checks: list[NumberCheck] = []
     seen: set[str] = set()
     for canonical, written in _tokens(text):
-        if canonical not in allowed and canonical not in seen:
+        if canonical not in seen:
             seen.add(canonical)
-            rejected.append(written)
-    return ValidationResult(ok=not rejected, rejected=tuple(rejected))
+            checks.append(NumberCheck(token=written, ok=canonical in allowed))
+    return checks
+
+
+def validate_text(text: str, allowed: frozenset[str]) -> ValidationResult:
+    """Reject the text if any number in it isn't in `allowed`. Rejected tokens are listed once."""
+    rejected = tuple(c.token for c in check_numbers(text, allowed) if not c.ok)
+    return ValidationResult(ok=not rejected, rejected=rejected)

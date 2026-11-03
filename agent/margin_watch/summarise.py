@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -31,7 +32,7 @@ from margin_watch.llm import (
 from margin_watch.local_client import DEFAULT_LOCAL_MODEL, DEFAULT_LOCAL_URL, OpenAICompatibleClient
 from margin_watch.models import Provider, RunReport, Summary
 from margin_watch.template import template_summary
-from margin_watch.validate import allowed_tokens, validate_text
+from margin_watch.validate import NumberCheck, allowed_tokens, check_numbers
 
 SYSTEM_PROMPT_PATH = REPO_ROOT / "prompts" / "summary_system.md"
 MAX_ROUNDS = 6
@@ -106,23 +107,42 @@ def _template(
     )
 
 
-def summarise(report: RunReport, client: ModelClient, *, provider: Provider, model: str) -> Summary:
-    """Run the tool-use loop and verify every number; fall back to the template on any failure."""
+@dataclass(frozen=True)
+class SummaryOutcome:
+    """The summary, plus what the model wrote and how each of its numbers checked out."""
+
+    summary: Summary
+    ai_text: str | None
+    checks: tuple[NumberCheck, ...]
+
+
+def summarise_detailed(
+    report: RunReport, client: ModelClient, *, provider: Provider, model: str
+) -> SummaryOutcome:
+    """Run the tool-use loop and check every number; fall back to the template on any failure."""
     facts = build_facts(report)
     try:
         text = run_tool_loop(client, load_system_prompt(), facts)
     except ModelError as error:
-        return _template(report, provider, model, error.reason)
-    verdict = validate_text(text, allowed_tokens(facts))
-    if not verdict.ok:
-        return _template(report, provider, model, "rejected_numbers", verdict.rejected)
-    return Summary(
-        text=text,
-        source="ai_verified",
-        provider=provider,
-        model=model,
-        fallback_reason=None,
-    )
+        return SummaryOutcome(_template(report, provider, model, error.reason), None, ())
+    checks = tuple(check_numbers(text, allowed_tokens(facts)))
+    rejected = tuple(c.token for c in checks if not c.ok)
+    if rejected:
+        summary = _template(report, provider, model, "rejected_numbers", rejected)
+    else:
+        summary = Summary(
+            text=text,
+            source="ai_verified",
+            provider=provider,
+            model=model,
+            fallback_reason=None,
+        )
+    return SummaryOutcome(summary, text, checks)
+
+
+def summarise(report: RunReport, client: ModelClient, *, provider: Provider, model: str) -> Summary:
+    """Run the tool-use loop and verify every number; fall back to the template on any failure."""
+    return summarise_detailed(report, client, provider=provider, model=model).summary
 
 
 def _setting(env: Mapping[str, str], key: str, default: str) -> str:

@@ -51,6 +51,13 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: dashboard/package-lock.json
+      - uses: astral-sh/setup-uv@v10 # the live-run browser tests drive the real Python helper
+        with:
+          enable-cache: true
+          cache-dependency-glob: agent/uv.lock
+      - name: Install the agent (for the live-run helper)
+        working-directory: agent
+        run: uv sync --frozen --python 3.12
       - run: npm ci
       - name: svelte-check
         run: npm run check

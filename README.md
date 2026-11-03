@@ -16,6 +16,12 @@ make demo
 
 This runs both sample mornings (3 Nov with a deliberately bad AI answer, 4 Nov with a verified one), builds the dashboard and serves it at **http://localhost:4173**. It also prints where the Excel report and the email preview are. Stop it with Ctrl+C.
 
+**Press "Run this morning's check"** in the top bar to watch a real dry run step by step: reading the jobs, doing the maths, catching bad data, the AI writing the summary while every number is checked, saving the Excel report and drafting the email. Nothing is sent. "Try it with a made-up AI number" shows the check rejecting an invented figure, live. `make demo-fresh` starts from an empty dashboard instead.
+
+![The live run panel catching a made-up number](docs/screenshots/live-run-made-up-number-light.png)
+
+The button is served by a small local helper (`margin-watch serve`, listening on 127.0.0.1 only, offline demo AI only). A static copy of the dashboard (`npm run sync-runs && npm run build`) works without it, just without the button.
+
 Other commands: `make test` (every check), `make clean` (remove generated files). To run one morning yourself:
 
 ```bash
@@ -57,8 +63,8 @@ If `local` or `claude` is unavailable (no key, unreachable, timeout, error), the
 
 - **Acceptance criteria first.** Every behaviour is written down in [docs/acceptance-criteria.md](docs/acceptance-criteria.md) as `AC-NN` with concrete numbers, for example *AC-10: a 9.99% forecast margin is At risk, exactly 10% is On track*.
 - **Tests from the criteria.** Each test carries its AC ID in its name (`test_ac10_…`, `test('AC-81 …')`) and was run red before any code existed.
-- **Tests are then frozen.** After review, each phase's tests were committed and tagged `tests-approved-2`, `-4`, `-5` and `-6`. A hook blocks edits to committed tests, and `scripts/check_frozen_tests.py` proves none changed since their tag.
-- **Traceability is checked.** `scripts/check_test_integrity.py` fails if any AC has no test, any test has no AC, or any test is skipped. 90 ACs, 176 Python tests, 27 unit and 14 browser tests (including accessibility checks with axe).
+- **Tests are then frozen.** After review, each phase's tests were committed and tagged `tests-approved-2`, `-4`, `-5`, `-6`, `-7` and `-8`. A hook blocks edits to committed tests, and `scripts/check_frozen_tests.py` proves none changed since their tag.
+- **Traceability is checked.** `scripts/check_test_integrity.py` fails if any AC has no test, any test has no AC, or any test is skipped. 104 ACs, 205 Python tests, 32 unit and 21 browser tests (including accessibility checks with axe and an end-to-end run of the real local helper).
 - Decisions are logged in [docs/decisions.md](docs/decisions.md) and phase-by-phase progress in [docs/progress.md](docs/progress.md).
 
 ## From prototype to production
@@ -70,4 +76,4 @@ If `local` or `claude` is unavailable (no key, unreachable, timeout, error), the
 
 ## Repository layout
 
-`agent/` Python package and tests · `dashboard/` SvelteKit dashboard and tests · `config/` thresholds and settings · `data/sample/` the fictional jobs · `prompts/` the model's system prompt · `docs/` spec, acceptance criteria, decisions, progress, scheduling, QA checklist and Loom script · `output/` generated files (git-ignored).
+`agent/` Python package (including the `serve` helper) and tests · `dashboard/` SvelteKit dashboard and tests · `config/` thresholds and settings · `data/sample/` the fictional jobs · `prompts/` the model's system prompt · `docs/` spec, acceptance criteria, decisions, progress, scheduling, QA checklist and Loom script · `output/` generated files (git-ignored).

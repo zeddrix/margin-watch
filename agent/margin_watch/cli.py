@@ -16,6 +16,7 @@ from margin_watch.formatting import format_date
 from margin_watch.labels import summary_label
 from margin_watch.models import RunReport, Status, Summary
 from margin_watch.run import build_report, write_outputs
+from margin_watch.server import LiveApp, make_server
 from margin_watch.sources import SampleFileSource, SourceError
 from margin_watch.summarise import create_summary
 
@@ -166,13 +167,18 @@ def serve(
     ] = None,
 ) -> None:
     """Serve the dashboard with a live "Run this morning's check" button (127.0.0.1 only)."""
-    from http.server import BaseHTTPRequestHandler, HTTPServer
-
-    class Placeholder(BaseHTTPRequestHandler):
-        def do_GET(self) -> None:
-            self.send_error(501)
-
-        def do_POST(self) -> None:
-            self.send_error(501)
-
-    HTTPServer(("127.0.0.1", port), Placeholder).serve_forever()
+    _load_env_file()
+    settings = load_settings()
+    build = dashboard_dir or AGENT_DIR.parent / "dashboard" / "build"
+    live = LiveApp(dashboard_dir=build, output_dir=output_dir or settings.output_dir, pace=pace)
+    server = make_server(live, port)
+    typer.echo(f"Margin Watch is running at http://localhost:{port} (dry run, nothing is sent).")
+    if not (build / "index.html").is_file():
+        typer.echo(f"Note: no dashboard build in {build}. Run `npm run build` in dashboard/.")
+    typer.echo("Stop with Ctrl+C.")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        typer.echo("Stopped.")
+    finally:
+        server.server_close()

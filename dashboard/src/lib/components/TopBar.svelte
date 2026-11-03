@@ -6,12 +6,18 @@
 		runs,
 		selected,
 		sampleData,
-		onSelect
+		live = false,
+		onSelect,
+		onRun = () => {},
+		runButton = $bindable(null)
 	}: {
 		runs: RunIndexEntry[];
 		selected: string | null;
 		sampleData: boolean;
+		live?: boolean;
 		onSelect: (asOf: string) => void;
+		onRun?: () => void;
+		runButton?: HTMLButtonElement | null;
 	} = $props();
 
 	const current = $derived(runs.find((r) => r.as_of === selected) ?? null);
@@ -31,6 +37,15 @@
 			{/if}
 		</div>
 		<div class="run">
+			{#if live}
+				<div class="live">
+					<button type="button" class="run-button" data-testid="run-button" bind:this={runButton} onclick={onRun}>
+						<svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14"><path d="M4.5 3v10l8.5-5Z" fill="currentColor" /></svg>
+						Run this morning's check
+					</button>
+					<span class="dry" data-testid="dry-run-pill">Dry run · nothing is sent</span>
+				</div>
+			{/if}
 			{#if current}
 				<span class="stamp num" data-testid="run-stamp">{formatRunStamp(current.generated_at)}</span>
 			{/if}
@@ -99,6 +114,38 @@
 		align-items: center;
 		gap: 16px;
 		flex-wrap: wrap;
+	}
+.live {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		flex-wrap: wrap;
+	}
+	.run-button {
+		font: inherit;
+		font-size: 14px;
+		font-weight: 700;
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px 16px;
+		border-radius: 8px;
+		border: 1px solid var(--accent);
+		background: var(--accent);
+		color: var(--surface);
+		cursor: pointer;
+		box-shadow: 0 1px 2px rgb(15 23 42 / 0.12);
+		transition: background-color 150ms ease-out, transform 150ms ease-out;
+	}
+	.run-button:hover {
+		background: var(--accent-hover);
+	}
+	.run-button:active {
+		transform: translateY(1px);
+	}
+	.dry {
+		font-size: 12px;
+		color: var(--muted);
 	}
 	.stamp {
 		font-size: 13px;

@@ -2,6 +2,8 @@
 	import { onMount, tick } from 'svelte';
 	import { previousRunEntry, worsenedJobIds } from '../lib/compare';
 	import { RunFileError, fetchIndex, fetchRun } from '../lib/load';
+	import { fetchLiveHealth } from '../lib/live';
+	import LiveRunPanel from '../lib/components/LiveRunPanel.svelte';
 	import type { Job, Run, RunIndex } from '../lib/types';
 	import JobDrawer from '../lib/components/JobDrawer.svelte';
 	import JobsSection from '../lib/components/JobsSection.svelte';
@@ -21,6 +23,9 @@
 	let runLoading = $state(false);
 	let openJob = $state<Job | null>(null);
 	let returnFocus: HTMLElement | null = null;
+	let live = $state(false);
+	let showLive = $state(false);
+	let runButton = $state<HTMLButtonElement | null>(null);
 	let request = 0;
 
 	const base = './';
@@ -58,7 +63,7 @@
 		runLoading = false;
 	}
 
-	onMount(async () => {
+	async function loadIndex(prefer: string | null = null) {
 		try {
 			index = await fetchIndex(fetch, base);
 		} catch (error) {
@@ -70,9 +75,21 @@
 			phase = 'empty';
 			return;
 		}
-		await selectRun(index.runs[0].as_of);
+		const pick = index.runs.find((r) => r.as_of === prefer) ?? index.runs[0];
+		await selectRun(pick.as_of);
 		phase = 'ready';
+	}
+
+	onMount(async () => {
+		const [health] = await Promise.all([fetchLiveHealth(fetch, base), loadIndex()]);
+		live = health !== null;
 	});
+
+	async function closeLive() {
+		showLive = false;
+		await tick();
+		runButton?.focus();
+	}
 
 	function open(jobId: string, trigger: HTMLElement) {
 		const job = run?.jobs.find((j) => j.id === jobId);
@@ -92,7 +109,10 @@
 	runs={index?.runs ?? []}
 	{selected}
 	sampleData={run?.source.sample_data ?? true}
+	{live}
 	onSelect={selectRun}
+	onRun={() => (showLive = true)}
+	bind:runButton
 />
 
 <main class="page">
@@ -105,9 +125,19 @@
 			<div class="block table"></div>
 		</div>
 	{:else if phase === 'empty'}
-		<section class="card state" data-testid="empty-state">
-			<h1>No runs yet. Run <code>margin-watch run</code>.</h1>
-			<p>Each morning run writes a file to <code>output/runs/</code>. Then <code>npm run sync-runs</code> copies it here.</p>
+		<section class="card state" class:ready={live} data-testid="empty-state">
+			{#if live}
+				<h1>No runs yet. Ready for this morning's check.</h1>
+				<p>
+					Press <strong>Run this morning's check</strong> above. It reads the jobs, does the maths,
+					checks every number in the AI's summary, saves the Excel report and drafts the email,
+					one step at a time.
+				</p>
+				<p>It's a dry run on made-up sample data: nothing is sent.</p>
+			{:else}
+				<h1>No runs yet. Run <code>margin-watch run</code>.</h1>
+				<p>Each morning run writes a file to <code>output/runs/</code>. Then <code>npm run sync-runs</code> copies it here.</p>
+			{/if}
 		</section>
 	{:else if phase === 'index-error'}
 		<section class="card state error" data-testid="run-error" role="alert">
@@ -134,6 +164,10 @@
 		</p>
 	{/if}
 </main>
+
+{#if showLive}
+	<LiveRunPanel {base} onClose={closeLive} onFinished={(asOf) => loadIndex(asOf)} />
+{/if}
 
 {#if openJob}
 	<JobDrawer job={openJob} onClose={close} />
@@ -166,6 +200,14 @@
 	.state p {
 		margin: 0 0 4px;
 		color: var(--muted);
+	}
+	.state.ready {
+		max-width: 720px;
+		border-color: var(--accent);
+	}
+	.state.ready p {
+		color: var(--text);
+		margin-bottom: 8px;
 	}
 	.state.error {
 		border-color: var(--loss-border);

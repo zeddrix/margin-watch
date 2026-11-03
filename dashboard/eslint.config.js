@@ -31,8 +31,9 @@ export default defineConfig(
 		}
 	},
 	{
-		// Override or add rule settings here, such as:
-		// 'svelte/button-has-type': 'error'
-		rules: {}
+		// The live-run panel links to files served by the local helper (/files/...), not to
+		// SvelteKit routes, so resolve() doesn't apply to those links.
+		files: ['src/lib/components/LiveRunPanel.svelte'],
+		rules: { 'svelte/no-navigation-without-resolve': ['error', { ignoreLinks: true }] }
 	}
 );

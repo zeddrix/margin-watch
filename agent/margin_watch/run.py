@@ -11,7 +11,7 @@ from typing import Any
 
 from margin_watch.calc import summarise_portfolio
 from margin_watch.email_graph import build_email_html, build_sendmail_payload
-from margin_watch.mailer import DryRunMailer, EmailDraft
+from margin_watch.mailer import DryRunMailer, EmailDraft, MailReceipt
 from margin_watch.models import (
     STATUS_ORDER,
     CostCentreResult,
@@ -208,22 +208,35 @@ def update_index(runs_dir: Path, document: dict[str, Any], file_name: str) -> Pa
     return path
 
 
-def write_outputs(report: RunReport, output_dir: Path, recipient: str) -> RunOutputs:
-    """Write the run JSON, update the index, write the Excel report and the email draft."""
-    stamp = report.as_of.isoformat()
+def write_run_files(report: RunReport, output_dir: Path) -> tuple[Path, Path]:
+    """Write runs/<as_of>.json and update runs/index.json (the dashboard's inputs)."""
     runs_dir = output_dir / "runs"
     runs_dir.mkdir(parents=True, exist_ok=True)
     document = report_to_json(report)
-    run_json = runs_dir / f"{stamp}.json"
+    run_json = runs_dir / f"{report.as_of.isoformat()}.json"
     run_json.write_text(dump_json(document), encoding="utf-8")
-    index_json = update_index(runs_dir, document, run_json.name)
-    excel = write_excel(report, output_dir / f"margin-report-{stamp}.xlsx")
+    return run_json, update_index(runs_dir, document, run_json.name)
+
+
+def excel_path(report: RunReport, output_dir: Path) -> Path:
+    return output_dir / f"margin-report-{report.as_of.isoformat()}.xlsx"
+
+
+def write_email(report: RunReport, output_dir: Path, recipient: str) -> MailReceipt:
+    """Build the Graph sendMail draft and hand it to the dry-run mailer (nothing is sent)."""
     draft = EmailDraft(
         as_of=report.as_of,
         payload=build_sendmail_payload(report, recipient),
         html=build_email_html(report),
     )
-    receipt = DryRunMailer(output_dir / "email").send(draft)
+    return DryRunMailer(output_dir / "email").send(draft)
+
+
+def write_outputs(report: RunReport, output_dir: Path, recipient: str) -> RunOutputs:
+    """Write the run JSON, update the index, write the Excel report and the email draft."""
+    run_json, index_json = write_run_files(report, output_dir)
+    excel = write_excel(report, excel_path(report, output_dir))
+    receipt = write_email(report, output_dir, recipient)
     return RunOutputs(
         run_json=run_json,
         index_json=index_json,
