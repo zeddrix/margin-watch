@@ -137,15 +137,57 @@ Unless stated, "the 4 Nov run" means `margin-watch run --source data/sample/jobs
 
 **AC-51 NEEDS_REVIEW isn't an error.** A file whose only two jobs are both NEEDS_REVIEW exits 0, with counts NEEDS_REVIEW 2, `average_forecast_margin_pct` null and total dollars at risk 0.0.
 
-## Phase 5: summary, providers and number verification (to be numbered in Phase 5)
+## Phase 5: summary, providers and number verification
 
-- Facts object with every number as a pre-formatted string.
-- Demo model: tool calls first, then text built only from tool results; deterministic; verified.
-- `demo-bad`: one invented number is rejected, template used, rejected tokens and fallback reason recorded.
-- The validator rejects an invented number and a re-rounded number; identifiers and dates don't trip it.
-- Tool-use loop: unknown job id returns a tool error; at most 6 rounds.
-- Every fallback path: no API key, unreachable server, timeout, API error, too many rounds, empty answer.
-- Anthropic and OpenAI-compatible request shapes and response parsing, with fakes.
+"The 4 Nov report" is `build_report` on `jobs-2026-11-04.json` (as of 2026-11-04). Fakes stand in for every model; no test opens a network connection. The invented figure used by `demo-bad` is `$13,750`, which appears in neither sample run.
+
+### Facts and the validator
+
+**AC-52 Facts are pre-formatted strings.** `build_facts(report)` returns an `overview` and a `jobs` map in which every leaf value is a string. For 4 Nov: `run_date` "Wed 4 Nov 2026", `total_jobs` "14", `jobs_needing_action` "3", `jobs_to_review` "2", `total_dollars_at_risk` "$66,300", `average_forecast_margin` "15.7%", counts `{"loss": "1", "at_risk": "2", "watch": "2", "needs_review": "2", "on_track": "7"}`, and `flagged_jobs` listing the 7 jobs that aren't ON_TRACK in risk order. Job 1042's facts are exactly: job_id "1042", name, client, site, project_manager "Dave Kowalski", status "LOSS", percent_complete "60.0%", quoted_margin "17.5%", forecast_margin "-2.5%", margin_erosion "20.0 pts", dollars_at_risk "$16,000", main_driver "Labour", main_driver_overrun "$12,000", main_driver_overrun_pct "50.0%", reason (the spec text). NEEDS_REVIEW job 1039 has status "NEEDS_REVIEW", its review problem and a "what_to_check" hint, and no margin figures.
+
+**AC-53 The validator accepts exact numbers.** With the 4 Nov facts, `Labour is $12,000 (50.0%) over and erosion is 20.0 pts, so 3 jobs need a call.` passes with no rejected tokens. Money, percentages, points, decimals and integers are all extracted.
+
+**AC-54 The validator rejects invented numbers.** With the 4 Nov facts, `It is about $15,000 over.` is rejected with rejected tokens `["$15,000"]`; `Send 12 crews.` is rejected with `["12"]`; each rejected token is listed once, in order of appearance.
+
+**AC-55 The validator rejects re-rounded numbers.** Given facts containing "6.2%", "$12,480", "8.1 pts" and "-2.5%": `6%`, `$12,500`, `8 pts`, `2.5%` and `$12.5k` are each rejected; the exact forms pass.
+
+**AC-56 Identifiers and dates don't trip it.** Given facts with job_id "1042", name "Level 4 fit-out: VRF install" and run_date "Wed 4 Nov 2026", the text `Job 1042 (Level 4 fit-out, Q4 programme) on 4 Nov 2026.` passes. "Q4" isn't a number token.
+
+**AC-57 Harmless spelling variants.** "20.0 points" matches the fact "20.0 pts", and a Unicode minus "−2.5%" matches "-2.5%". Nothing else is normalised.
+
+### Demo model and the tool-use loop
+
+**AC-58 Demo asks for facts first.** Given the 4 Nov facts message, `DemoModelClient().complete(...)` first returns no text and one `get_job_facts` call per flagged job, in risk order (1042, 1038, 1035, 1033, 1040, 1039, 1044).
+
+**AC-59 Demo writes a verified summary.** `summarise(report, DemoModelClient(), provider="demo", model="demo-scripted-1")` for 4 Nov gives source `ai_verified`, provider `demo`, model `demo-scripted-1`, no fallback reason and no rejected tokens. The text has 3 to 6 sentences, its first sentence names "Dave Kowalski" and "1042", every number in it appears in the facts, and two runs produce identical text. The 3 Nov run is verified too.
+
+**AC-60 demo-bad is caught.** `summarise(..., DemoModelClient(bad=True), provider="demo-bad", ...)` for 4 Nov and for 3 Nov gives source `template`, the template text, `rejected_tokens == ["$13,750"]` and `fallback_reason == "rejected_numbers"`.
+
+**AC-61 Unknown job id is a tool error, not a crash.** A model that asks for `get_job_facts("9999")` gets a tool result with `is_error` true whose content names "9999"; the loop goes on, and when the model then writes a valid answer the summary is `ai_verified`. An unknown tool name gets an error result too.
+
+**AC-62 At most 6 rounds.** A model that asks for a tool on every turn is called exactly 6 times, then the template is used with `fallback_reason "too_many_rounds"`.
+
+**AC-63 Empty answers fall back.** A model whose final turn is empty or whitespace gives the template with `fallback_reason "empty_answer"`.
+
+### Claude (Anthropic SDK), with a fake SDK client
+
+**AC-64 Anthropic request shape and parsing.** `AnthropicClient` sends `messages.create` with `model` (default `claude-sonnet-5-5`, or `MARGIN_WATCH_MODEL`), `system` equal to `prompts/summary_system.md`, `tools` equal to the single `get_job_facts` tool (`name`, `description`, `input_schema` with a required string `job_id`), `max_tokens` 500, `thinking {"type": "between_tools"}` and **no** `temperature` (Claude Sonnet 5.5 rejects non-default sampling; see decisions). The follow-up request echoes the assistant `content` unchanged and sends one user message of `tool_result` blocks whose `tool_use_id` matches each `tool_use` id. `text` blocks become the answer; `tool_use` blocks become tool calls. A run with this fake is `ai_verified` with provider `claude`.
+
+**AC-65 Anthropic failures fall back quietly.** No `ANTHROPIC_API_KEY` gives the template with `fallback_reason "no_api_key"` and no exception, and `margin-watch run --ai claude` without a key exits 0. The SDK's `APITimeoutError` gives `timeout`; `APIConnectionError` gives `unreachable`; `RateLimitError` gives `rate_limited`; any other `APIStatusError` (500) gives `api_error`; `stop_reason "refusal"` gives `refusal`; `stop_reason "max_tokens"` gives `truncated`. A real client built from a key uses a 20 s timeout.
+
+### Local model (OpenAI-compatible), with `httpx.MockTransport`
+
+**AC-66 Local request shape and parsing.** `OpenAICompatibleClient` POSTs to `{LOCAL_LLM_URL}/v1/chat/completions` with `model` = `LOCAL_LLM_MODEL`, `messages` starting with the system prompt then the facts message, `tools` `[{"type": "function", "function": {"name": "get_job_facts", ...}}]`, `max_tokens` 500 and `temperature` 0. `tool_calls` with JSON-string `arguments` become tool calls; the follow-up sends the assistant `tool_calls` and one `role: "tool"` message per result. A run with this transport is `ai_verified` with provider `local`.
+
+**AC-67 Local failures fall back quietly.** A connection error gives `unreachable`, a timeout `timeout`, an HTTP 500 `api_error`, and a reply that isn't the expected JSON `bad_response`. `margin-watch run --ai local` against an unreachable server exits 0 with the template. The client uses a 30 s timeout.
+
+### Wiring and labels
+
+**AC-68 Provider selection.** `--ai` beats `MARGIN_WATCH_AI`, which beats the default `demo`. With no `--ai` and no env var, the 4 Nov run's summary is `ai_verified` by `demo`; with `MARGIN_WATCH_AI=off` it is the template; `--ai off` beats `MARGIN_WATCH_AI=demo`.
+
+**AC-69 Labels say who wrote it.** Email and Excel show `Written by Demo AI · numbers verified` for a verified demo run and `Template summary · AI answer rejected` for a demo-bad run. The labels for verified local and Claude runs are `Written by Local model · numbers verified` and `Written by Claude · numbers verified`. A demo label never contains "Claude".
+
+**AC-70 One reviewable system prompt.** `prompts/summary_system.md` exists and says: busy ops manager at an HVAC contractor, plain Australian English, 3 to 6 sentences, lead with what needs action today and who the PM is, use numbers exactly as given, never calculate, round, add, compare or estimate, leave out any number not in the facts, no greeting or sign-off. The demo, Anthropic and local clients all receive exactly this text as the system prompt.
 
 ## Phase 6: dashboard (to be numbered in Phase 6)
 
