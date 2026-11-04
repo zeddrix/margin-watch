@@ -47,7 +47,7 @@ Zero failures and zero warnings. There's no such thing as a "pre-existing" failu
 - `data/sample/` fictional jobs
 - `prompts/` model system prompts (reviewable text)
 - `output/` generated files (git-ignored)
-- `docs/` spec, acceptance criteria, testing rules, decisions, progress, scheduling, manual QA, Loom script
+- `docs/` spec, acceptance criteria, testing rules, decisions, progress, scheduling, manual QA
 
 ## Guardrail files (don't modify)
 

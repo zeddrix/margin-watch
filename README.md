@@ -76,4 +76,4 @@ If `local` or `claude` is unavailable (no key, unreachable, timeout, error), the
 
 ## Repository layout
 
-`agent/` Python package (including the `serve` helper) and tests · `dashboard/` SvelteKit dashboard and tests · `config/` thresholds and settings · `data/sample/` the fictional jobs · `prompts/` the model's system prompt · `docs/` spec, acceptance criteria, decisions, progress, scheduling, QA checklist and Loom script · `output/` generated files (git-ignored).
+`agent/` Python package (including the `serve` helper) and tests · `dashboard/` SvelteKit dashboard and tests · `config/` thresholds and settings · `data/sample/` the fictional jobs · `prompts/` the model's system prompt · `docs/` spec, acceptance criteria, decisions, progress, scheduling and QA checklist · `output/` generated files (git-ignored).
